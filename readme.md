@@ -141,12 +141,59 @@ SAVE MYSQL USERS TO DISK;
 
 # LDAP <a name="ldap"></a>
 
+## Install LDAP packages
+
+`source install_ldap.sh`
+
 ## Using web interface
 
 Visit http://localhost:8080 in the browser.
 
 Login as:
 user = <i>cn=admin,dc=proxysql,dc=com</i> and password = <i>password</i>
+
+Create two OU (groups, users), two posix accounts under groups (developer, bi), and one user account (e.g., vthompson) under users.
+
+## Test from app server
+
+Get IP address as needed:
+```
+docker inspect --format='{{ .NetworkSettings.Networks.adjacents_default.IPAddress }}' openldap
+
+ldapwhoami -vvv -H ldap://172.18.0.5 -D cn=vthompson,ou=users,dc=proxysql,dc=com -x -wpassword
+```
+
+## Get info for this user
+
+```
+ldapsearch -LL -H ldap://172.18.0.5 -b "ou=users,dc=proxysql,dc=com" -D "cn=admin,dc=proxysql,dc=com" -w "password"
+```
+
+## Create and connect ldap backend, test
+
+```
+vault auth-enable ldap
+
+vault auth -methods
+
+vault write auth/ldap/config \
+  url="ldap://172.18.0.5" \
+  binddn="cn=admin,dc=proxysql,dc=com" \
+  bindpass="password" \
+  userattr="uid" \
+  userdn="ou=users,dc=proxysql,dc=com" \
+  discoverdn=true \
+  groupdn="ou=groups,dc=proxysql,dc=com" \
+  insecure_tls=true
+
+vault write auth/ldap/groups/developer policies=developer
+
+vault write auth/ldap/users/vthompson groups=developer
+
+vault auth -method=ldap username=vthompson
+[enter password at command prompt]
+```
+
 
 
 
