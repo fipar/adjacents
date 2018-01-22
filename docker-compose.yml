@@ -1,39 +1,36 @@
 version: '3'
 
+################################################
+# adjacents master docker-compose file
+# updated January 2018
+# author: Valerie Parham-Thompson
+
 services:
 
+################################################
+# operations server; run commands here
   app:
     container_name: app
     image: dataindataout/opsjump
     hostname: app
-    environment:
-      - VAULT_ADDR=http://vault:9200
+    # environment:
+    #   - VAULT_ADDR=http://vault:9200
     volumes:
-      - ./scripts/initiate_vault.sh:/initiate_vault.sh
       - ./scripts/initiate_replication.sh:/initiate_replication.sh
-      - ./scripts/initiate_proxysql.sh:/initiate_proxysql.sh
-      - ./scripts/create_user.sh:/create_user.sh
-      - ./scripts/install_ldap.sh:/install_ldap.sh
+      # - ./scripts/initiate_vault.sh:/initiate_vault.sh
+      # - ./scripts/initiate_proxysql.sh:/initiate_proxysql.sh
+      # - ./scripts/create_user.sh:/create_user.sh
+      # - ./scripts/install_ldap.sh:/install_ldap.sh
     command: tail -f /dev/null
 
-  vault:
-    container_name: vault
-    hostname: vault
-    image: dataindataout/docker-vault
-    ports:
-      - "9200:8200"
-    volumes:
-      - ./vault.hcl:/etc/vault.hcl
-    environment:
-      - VAULT_ADDR=http://vault:9200
-    command: "server -config=/etc/vault.hcl"
-
+################################################
+# oracle mysql community 5.7
   mysqlprimary:
     container_name: mysqlprimary
     image: dataindataout/mysql
     hostname: mysqlprimary
     ports: 
-      - "3306:3306"
+      - "3301:3306"
     environment:
       MYSQL_ROOT_PASSWORD: 'password'
       MYSQL_ROOT_HOST: '%'
@@ -46,7 +43,7 @@ services:
     image: dataindataout/mysql
     hostname: mysqlreplica
     ports: 
-      - "3307:3306"
+      - "3302:3306"
     environment:
       MYSQL_ROOT_PASSWORD: 'password'
       MYSQL_ROOT_HOST: '%'
@@ -57,6 +54,109 @@ services:
     depends_on: 
          - 'mysqlprimary'
 
+################################################
+# mariadb + myrocks 
+  # mariarocksprimary:
+  #   container_name: mariarocksprimary
+  #   image: dataindataout/mariarocks
+  #   hostname: mariarocksprimary
+  #   ports: 
+  #     - "3303:3306"
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: 'password'
+  #     MYSQL_ROOT_HOST: '%'
+  #   command: >
+  #       --server-id=3
+  #       --log-bin
+
+  # mariarocksreplica:
+  #   container_name: mariarocksreplica
+  #   image: dataindataout/mariarocks
+  #   hostname: mariarocksreplica
+  #   ports: 
+  #     - "3303:3306"
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: 'password'
+  #     MYSQL_ROOT_HOST: '%'
+  #   command: >
+  #       --server-id=4
+  #       --log-bin
+
+################################################
+# mariadb + tokudb
+  # mariatokuprimary:
+  #   container_name: mariatokuprimary
+  #   image: dataindataout/mariatoku
+  #   hostname: mariatokuprimary
+  #   ports: 
+  #     - "3305:3306"
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: 'password'
+  #     MYSQL_ROOT_HOST: '%'
+  #   command: >
+  #       --server-id=5
+  #       --log-bin
+
+  # mariatokureplica:
+  #   container_name: mariatokureplica
+  #   image: dataindataout/mariatoku
+  #   hostname: mariatokureplica
+  #   ports: 
+  #     - "3307:3306"
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: 'password'
+  #     MYSQL_ROOT_HOST: '%'
+  #   command: >
+  #       --server-id=7
+  #       --log-bin
+
+################################################
+# mariadb 10.3
+  # mariaprimary:
+  #   container_name: mariaprimary
+  #   image: dataindataout/mariadb:10.3
+  #   hostname: mysqlprimary
+  #   ports: 
+  #     - "3308:3306"
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: 'password'
+  #     MYSQL_ROOT_HOST: '%'
+  #   command: >
+  #       --server-id=8
+  #       --log-bin
+    
+  # mariareplica:
+  #   container_name: mariareplica
+  #   image: dataindataout/mariadb:10.3
+  #   hostname: mysqlreplica
+  #   ports: 
+  #     - "3309:3306"
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: 'password'
+  #     MYSQL_ROOT_HOST: '%'
+  #   command: >
+  #     --server-id=9
+  #     --read-only=ON
+  #     --log-bin
+  #   depends_on: 
+  #         - 'mariaprimary'
+
+################################################
+# hashicorp vault
+  vault:
+    container_name: vault
+    hostname: vault
+    image: dataindataout/docker-vault
+    ports:
+      - "9200:8200"
+    volumes:
+      - ./vault.hcl:/etc/vault.hcl
+    environment:
+      - VAULT_ADDR=http://vault:9200
+    command: "server -config=/etc/vault.hcl"
+
+################################################
+# proxysql
   proxysql:
     container_name: proxysql
     image: dataindataout/docker-proxysql
@@ -80,6 +180,8 @@ services:
       # ProxySQL main port
       - "6033:6033"
 
+################################################
+# openldap
   openldap:
     container_name: openldap
     image: dataindataout/docker-openldap
@@ -98,6 +200,8 @@ services:
       - /etc/ldap/slapd.d
       - /container/service/slapd/assets/certs/
 
+################################################
+# phpldapadmin (gui for openldap)
   phpldapadmin:
     image: dataindataout/docker-phpldapadmin
     container_name: phpldapadmin
