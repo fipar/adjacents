@@ -17,10 +17,10 @@ services:
     #   - VAULT_ADDR=http://vault:9200
     volumes:
       - ./scripts/initiate_replication.sh:/initiate_replication.sh
-      # - ./scripts/initiate_vault.sh:/initiate_vault.sh
-      # - ./scripts/initiate_proxysql.sh:/initiate_proxysql.sh
+      - ./scripts/initiate_vault.sh:/initiate_vault.sh
+      - ./scripts/initiate_proxysql.sh:/initiate_proxysql.sh
+      - ./scripts/install_ldap.sh:/install_ldap.sh
       # - ./scripts/create_user.sh:/create_user.sh
-      # - ./scripts/install_ldap.sh:/install_ldap.sh
     command: tail -f /dev/null
 
 ################################################
