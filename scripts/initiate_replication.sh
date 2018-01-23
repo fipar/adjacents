@@ -1,6 +1,10 @@
 #!/bin/bash
 
+master_host=$1
+replica_host=$2
+
 # Initialize replication
 
-mysql -hmysqlprimary -uroot -ppassword -e"create user repl@'%' identified by 'repl'; grant replication slave on *.* to repl@'%'"
-mysql -hmysqlreplica -uroot -ppassword -e"change master to master_host='mysqlprimary',master_user='repl',master_password='repl'; start slave;"
+mysql -h$master_host -uroot -ppassword -e"create user repl@'%' identified by 'repl'; grant replication slave on *.* to repl@'%'"
+mysql -h$replica_host -uroot -ppassword -e"change master to master_host='$master_host',master_user='repl',master_password='repl'; start slave;"
+
