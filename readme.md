@@ -13,11 +13,11 @@ Docker installed (17.09.1-ce)
 
 # How to use <a name="usage"></a>
 
-Uncomment the blocks in docker-compose.yml you want to use. Select a block and CMD+/ on mac.
+You probably don't want to start all of these at once.
 
-Run the following to start:
+Instead, choose the ones you want to spin up, like this:
 ```
-docker-compose up -d
+docker-compose up -d app mysqlprimary mysqlreplica vault proxysql
 ```
 
 Run the following to stop:

@@ -5,6 +5,9 @@ version: '3'
 # updated January 2018
 # author: Valerie Parham-Thompson
 
+# you probably don't want to start all of these at once with 'docker-compose up -d'
+# instead, choose the ones you want, as with 'docker-compose up -d app mysqlprimary mysqlreplica vault proxysql'
+
 services:
 
 ################################################
@@ -58,90 +61,90 @@ services:
 
 ################################################
 # mariadb + myrocks 
-  # mariarocksprimary:
-  #   container_name: mariarocksprimary
-  #   image: dataindataout/mariarocks
-  #   hostname: mariarocksprimary
-  #   ports: 
-  #     - "3303:3306"
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: 'password'
-  #     MYSQL_ROOT_HOST: '%'
-  #   command: >
-  #       --server-id=3
-  #       --log-bin
+  mariarocksprimary:
+    container_name: mariarocksprimary
+    image: dataindataout/mariarocks
+    hostname: mariarocksprimary
+    ports: 
+      - "3303:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 'password'
+      MYSQL_ROOT_HOST: '%'
+    command: >
+        --server-id=3
+        --log-bin
 
-  # mariarocksreplica:
-  #   container_name: mariarocksreplica
-  #   image: dataindataout/mariarocks
-  #   hostname: mariarocksreplica
-  #   ports: 
-  #     - "3304:3306"
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: 'password'
-  #     MYSQL_ROOT_HOST: '%'
-  #   command: >
-  #       --server-id=4
-  #       --log-bin
+  mariarocksreplica:
+    container_name: mariarocksreplica
+    image: dataindataout/mariarocks
+    hostname: mariarocksreplica
+    ports: 
+      - "3304:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 'password'
+      MYSQL_ROOT_HOST: '%'
+    command: >
+        --server-id=4
+        --log-bin
 
 ################################################
 # mariadb + tokudb
-  # mariatokuprimary:
-  #   container_name: mariatokuprimary
-  #   image: dataindataout/mariatoku
-  #   hostname: mariatokuprimary
-  #   ports: 
-  #     - "3305:3306"
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: 'password'
-  #     MYSQL_ROOT_HOST: '%'
-  #   command: >
-  #       --server-id=5
-  #       --log-bin
+  mariatokuprimary:
+    container_name: mariatokuprimary
+    image: dataindataout/mariatoku
+    hostname: mariatokuprimary
+    ports: 
+      - "3305:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 'password'
+      MYSQL_ROOT_HOST: '%'
+    command: >
+        --server-id=5
+        --log-bin
 
-  # mariatokureplica:
-  #   container_name: mariatokureplica
-  #   image: dataindataout/mariatoku
-  #   hostname: mariatokureplica
-  #   ports: 
-  #     - "3307:3306"
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: 'password'
-  #     MYSQL_ROOT_HOST: '%'
-  #   command: >
-  #       --server-id=7
-  #       --log-bin
+  mariatokureplica:
+    container_name: mariatokureplica
+    image: dataindataout/mariatoku
+    hostname: mariatokureplica
+    ports: 
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 'password'
+      MYSQL_ROOT_HOST: '%'
+    command: >
+        --server-id=7
+        --log-bin
 
 ################################################
 # mariadb 10.3
-  # mariaprimary:
-  #   container_name: mariaprimary
-  #   image: dataindataout/mariadb:10.3
-  #   hostname: mysqlprimary
-  #   ports: 
-  #     - "3308:3306"
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: 'password'
-  #     MYSQL_ROOT_HOST: '%'
-  #   command: >
-  #       --server-id=8
-  #       --log-bin
+  mariaprimary:
+    container_name: mariaprimary
+    image: dataindataout/mariadb:10.3
+    hostname: mysqlprimary
+    ports: 
+      - "3308:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 'password'
+      MYSQL_ROOT_HOST: '%'
+    command: >
+        --server-id=8
+        --log-bin
     
-  # mariareplica:
-  #   container_name: mariareplica
-  #   image: dataindataout/mariadb:10.3
-  #   hostname: mysqlreplica
-  #   ports: 
-  #     - "3309:3306"
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: 'password'
-  #     MYSQL_ROOT_HOST: '%'
-  #   command: >
-  #     --server-id=9
-  #     --read-only=ON
-  #     --log-bin
-  #   depends_on: 
-  #         - 'mariaprimary'
+  mariareplica:
+    container_name: mariareplica
+    image: dataindataout/mariadb:10.3
+    hostname: mysqlreplica
+    ports: 
+      - "3309:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 'password'
+      MYSQL_ROOT_HOST: '%'
+    command: >
+      --server-id=9
+      --read-only=ON
+      --log-bin
+    depends_on: 
+          - 'mariaprimary'
 
 ################################################
 # hashicorp vault
@@ -156,6 +159,20 @@ services:
     environment:
       - VAULT_ADDR=http://vault:9200
     command: "server -config=/etc/vault.hcl"
+
+################################################
+# hashicorp vault edited to remove begin/commit transaction
+  vault:
+    container_name: vaultnotrx
+    hostname: vaultnotrx
+    image: dataindataout/opsjump
+    # ports:
+    #   - "9200:8200"
+    volumes:
+      - ./vault.hcl:/etc/vault.hcl
+    environment:
+      - VAULT_ADDR=http://vault:9200
+    command: tail -f /dev/null
 
 ################################################
 # proxysql
@@ -214,4 +231,16 @@ services:
       - "8080:80"
     depends_on:
       - openldap
+
+################################################
+# golang build container as needed
+# put the code location in the volumes section
+# this is currently set up to build https://github.com/dataindataout/vault
+  golang:
+    container_name: golangbuild
+    hostname: golangbuild
+    image: golang:alpine
+    volumes:
+      - ~/localbuildme:/go/src/github.com/hashicorp
+    command: tail -f /dev/null
 
