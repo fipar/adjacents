@@ -162,17 +162,17 @@ services:
 
 ################################################
 # hashicorp vault edited to remove begin/commit transaction
-  vault:
-    container_name: vaultnotrx
-    hostname: vaultnotrx
-    image: dataindataout/opsjump
-    # ports:
-    #   - "9200:8200"
-    volumes:
-      - ./vault.hcl:/etc/vault.hcl
-    environment:
-      - VAULT_ADDR=http://vault:9200
-    command: tail -f /dev/null
+  # vaultnotrx:
+  #   container_name: vault
+  #   hostname: vault
+  #   image: dataindataout/docker-vault-notrx
+  #   ports:
+  #     - "9200:8200"
+  #   volumes:
+  #     - ./vault.hcl:/etc/vault.hcl
+  #   environment:
+  #     - VAULT_ADDR=http://vault:9200
+  #   command: "server -config=/etc/vault.hcl"
 
 ################################################
 # proxysql
@@ -236,11 +236,13 @@ services:
 # golang build container as needed
 # put the code location in the volumes section
 # this is currently set up to build https://github.com/dataindataout/vault
-  golang:
+  golangbuild:
     container_name: golangbuild
     hostname: golangbuild
     image: golang:alpine
     volumes:
       - ~/localbuildme:/go/src/github.com/hashicorp
     command: tail -f /dev/null
+
+
 
