@@ -5,7 +5,7 @@
 4. [Vault](#vault)
 5. [ProxySQL](#proxysql)
 6. [LDAP](#ldap)
-7. [Cassandra CCM] (#ccm)
+7. [Cassandra CCM](#ccm)
 
 # Prerequisites
 this repo
@@ -202,8 +202,8 @@ CCM allows you to spin up any number of Cassandra nodes on any version.
 Here is how you can do it in a container.
 
 ```
-docker-compose up -d app
-docker exec -it app bash
+docker-compose up -d ccm
+docker exec -it ccm bash
 ccm/setup.py install
 ccm create test -v2.0.5 -n1 -s
 ccm status
