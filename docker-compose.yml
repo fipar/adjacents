@@ -28,6 +28,14 @@ services:
     command: tail -f /dev/null
 
 ################################################
+# operations server; run commands here
+  ccm:
+    container_name: ccm
+    image: dataindataout/opsjump
+    hostname: ccm
+    command: tail -f /dev/null
+
+################################################
 # oracle mysql community 
 # add tags (5.6, 8.0, etc.) on image as needed
   mysqlprimary:
@@ -42,6 +50,7 @@ services:
     command: >
         --server-id=1
         --log-bin
+        --log-slave-updates=ON
     
   mysqlreplica:
     container_name: mysqlreplica
@@ -56,6 +65,7 @@ services:
       --server-id=2
       --read-only=ON
       --log-bin
+      --log-slave-updates=ON
     depends_on: 
          - 'mysqlprimary'
 
@@ -73,6 +83,7 @@ services:
     command: >
         --server-id=3
         --log-bin
+        --log-slave-updates=ON
 
   mariarocksreplica:
     container_name: mariarocksreplica
@@ -86,6 +97,7 @@ services:
     command: >
         --server-id=4
         --log-bin
+        --log-slave-updates=ON
 
 ################################################
 # mariadb + tokudb
@@ -101,6 +113,7 @@ services:
     command: >
         --server-id=5
         --log-bin
+        --log-slave-updates=ON
 
   mariatokureplica:
     container_name: mariatokureplica
@@ -114,6 +127,7 @@ services:
     command: >
         --server-id=7
         --log-bin
+        --log-slave-updates=ON
 
 ################################################
 # mariadb 10.3
@@ -129,6 +143,7 @@ services:
     command: >
         --server-id=8
         --log-bin
+        --log-slave-updates=ON
     
   mariareplica:
     container_name: mariareplica
@@ -143,6 +158,7 @@ services:
       --server-id=9
       --read-only=ON
       --log-bin
+      --log-slave-updates=ON
     depends_on: 
           - 'mariaprimary'
 
@@ -185,6 +201,7 @@ services:
       - mysqlreplica
     volumes:
       - ./proxysql.cnf:/etc/proxysql.cnf
+      - ./proxysql.repo:/etc/yum.repos.d/proxysql.repo
     environment:
       - CLUSTER_NAME=test
       - MYSQL_ROOT_PASSWORD=password
