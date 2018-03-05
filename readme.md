@@ -33,8 +33,19 @@ docker exec -it app bash
 
 # MySQL <a name="mysql"></a>
 
-## Start MySQL Replication
-`source initiate_replication.sh`
+For a single node of mysql, edit the image line (line 43) as needed for version. The default is currently 5.7. To run 8.0, for example, edit the line to:
+`image: dataindataout/mysql:8.0`
+
+Then run a single node from your terminal like:
+`docker-compose up -d mysqlprimary`
+
+For two nodes set up as primary-replica, run three containers like:
+```
+docker-compose up -d mysqlprimary mysqlreplica ops
+```
+
+Then start mysql replication on the ops container:
+`source initiate_replication.sh mysqlprimary mysqlreplica`
 
 # Using Vault <a name="vault"></a>
 
