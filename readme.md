@@ -216,7 +216,7 @@ Here is how you can do it in a container.
 docker-compose up -d ccm
 docker exec -it ccm bash
 ccm/setup.py install
-ccm create test -v2.0.5 -n1 -s
+ccm create test -v 3.11.2 -n3 -s --root --debug
 ccm status
 ccm node1 cqlsh
 ```
