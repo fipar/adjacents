@@ -6,7 +6,6 @@
 5. [ProxySQL](#proxysql)
 6. [LDAP](#ldap)
 7. [Cassandra CCM](#ccm)
-8. [Cassandra Sysbench](#cassandra)
 
 # Prerequisites
 this repo
@@ -224,31 +223,4 @@ ccm node1 cqlsh
 
 And now experiment!
 
-# Cassandra Sysbench <a name="cassandra"></a>
-
-```
-docker compose up -d cassandra sysbench
-```
-
-cassandra container:
-```
-cp /etc/cassandra/cassandra_new.yaml /etc/cassandra/cassandra.yaml
-service cassandra start
-(wait a few seconds)
-cqlsh
-CREATE KEYSPACE test WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
-CREATE TABLE test.user (
-  userid text PRIMARY KEY,
-  first_name text,
-  last_name text,
-  emails set<text>,
-  top_scores list<int>,
-  todo map<timestamp, text>
-);
-```
-
-sysbench container:
-```
-./benchmark1.lua run
-```
 
