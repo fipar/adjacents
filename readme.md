@@ -231,6 +231,7 @@ docker compose up -d cassandra sysbench
 ```
 
 cassandra container:
+```
 cp /etc/cassandra/cassandra_new.yaml /etc/cassandra/cassandra.yaml
 service cassandra start
 (wait a few seconds)
@@ -244,8 +245,10 @@ CREATE TABLE test.user (
   top_scores list<int>,
   todo map<timestamp, text>
 );
+```
 
 sysbench container:
+```
 ./benchmark1.lua run
-
+```
 
