@@ -8,7 +8,42 @@ version: '3'
 # you probably don't want to start all of these at once with 'docker-compose up -d'
 # instead, choose the ones you want, as with 'docker-compose up -d app mysqlprimary mysqlreplica vault proxysql'
 
+networks:
+  app_net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 172.16.238.0/24
+
 services:
+
+################################################
+# cassandra
+  cassandra:
+    container_name: cassandra
+    image: cassandra:latest
+    hostname: cassandra
+    networks:
+      app_net:
+        ipv4_address: 172.16.238.3
+    ports: 
+      - "9043:9042"
+    volumes:
+      - ./configuration/cassandra_new.yaml:/etc/cassandra/cassandra_new.yaml
+    command: tail -f /dev/null
+
+################################################
+# sysbench-lua
+  sysbench:
+    container_name: sysbench
+    image: dataindataout/sysbench-docker
+    hostname: sysbench
+    volumes:
+      - ./configuration/benchmark1.lua:/benchmark1.lua
+    links:
+      - cassandra
+    command: tail -f /dev/null
 
 ################################################
 # operations server; run commands here
@@ -28,7 +63,19 @@ services:
     command: tail -f /dev/null
 
 ################################################
-# operations server; run commands here
+# Datastax DSE server
+  dse:
+    container_name: dse
+    image: dataindataout/opsjump
+    hostname: dse
+    environment:
+      - VAULT_ADDR=http://vault:9200
+    volumes:
+      - ./DataStaxEnterprise-5.1.7-linux-x64-installer.run:/DataStaxEnterprise-5.1.7-linux-x64-installer.run
+    command: tail -f /dev/null
+
+################################################
+# server to run Cassandra cluster via ccm
   ccm:
     container_name: ccm
     image: dataindataout/opsjump
