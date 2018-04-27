@@ -1,12 +1,9 @@
 version: '3'
 
 ################################################
-# adjacents master docker-compose file
+# adjacents docker-compose file for vault blog post
 # updated April 2018
 # author: Valerie Parham-Thompson
-
-# you probably don't want to start all of these at once with 'docker-compose up -d'
-# instead, choose the ones you want, as with 'docker-compose up -d app mysqlprimary mysqlreplica vault proxysql'
 
 networks:
   app_net:
