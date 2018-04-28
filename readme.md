@@ -61,4 +61,8 @@ ccm node1 cqlsh
 
 And now experiment!
 
+MySQL/Vault/ProxySQL/LDAP is now here: https://github.com/parham-pythian/bastion
+
+Cassandra/ELK is now here: https://github.com/parham-pythian/cassandra-elk
+
 
