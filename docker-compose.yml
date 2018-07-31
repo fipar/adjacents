@@ -210,3 +210,47 @@ services:
 
 
 
+################################################
+# MySQL Cluster test cluster
+# with 1 management node, 2 data nodes and 1 sql
+# node. 
+
+
+  management1:
+    image: mysql/mysql-cluster:7.5
+    container_name: management1
+    volumes:
+      - ./config/mysql-cluster.cnf:/etc/mysql-cluster.cnf
+      - ./config/my.cnf:/etc/my.cnf
+    command: ndb_mgmd
+    depends_on:
+      - ndb1
+      - ndb2
+      - mysql1
+
+  ndb1:
+    image: mysql/mysql-cluster:7.5
+    container_name: ndb1
+    volumes:
+      - ./config/mysql-cluster.cnf:/etc/mysql-cluster.cnf
+      - ./config/my.cnf:/etc/my.cnf
+    command: ndbmtd
+
+  ndb2:
+   image: mysql/mysql-cluster:7.5 
+   container_name: ndb2
+   volumes:
+      - ./config/mysql-cluster.cnf:/etc/mysql-cluster.cnf
+      - ./config/my.cnf:/etc/my.cnf
+   command: ndbmtd
+
+  mysql1:
+   image: mysql/mysql-cluster:7.5
+   container_name: mysql1
+   volumes:
+      - ./config/mysql-cluster.cnf:/etc/mysql-cluster.cnf
+      - ./config/my.cnf:/etc/my.cnf
+   command: mysqld
+
+
+
